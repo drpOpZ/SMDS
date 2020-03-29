@@ -1,0 +1,305 @@
+---
+title: "Homework 1"
+author: "Michele Rispoli"
+date: "Spring 2020"
+output:
+  html_document:
+    toc: yes
+  beamer_presentation:
+    highlight: tango
+  include: null
+  ioslides_presentation:
+    highlight: tango
+  pdf_document:
+    highlight: tango
+    keep_tex: yes
+    toc: yes
+  slide_level: 2
+  slidy_presentation:
+    fig.height: 3
+    fig.width: 4
+    highlight: tango
+header-includes:
+- \usepackage{color}
+- \definecolor{Purple}{HTML}{911146}
+- \definecolor{Orange}{HTML}{CF4A30}
+- \setbeamercolor{alerted text}{fg=Orange}
+- \setbeamercolor{frametitle}{bg=Purple}
+institute: University of Udine & University of Trieste
+graphics: yes
+subtitle: Simulation, examples and exercises
+fontsize: 10pt
+---
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.align = 'center', warning=FALSE, message=FALSE, fig.asp=0.625, dev='png', global.par = TRUE, dev.args=list(pointsize=10), fig.path = 'figs/')
+library(MASS)
+```
+```{r setup, include=FALSE}
+library(knitr)
+local({
+  hook_plot = knit_hooks$get('plot')
+  knit_hooks$set(plot = function(x, options) {
+    paste0('\n\n----\n\n', hook_plot(x, options))
+  })
+})
+```
+
+# Exercises from LAB
+
+## Ex. 1
+
+- Write a function $\mathsf{binomial(x,n,p)}$ for the binomial distribution above, depending on parameters $\mathsf{x,n,p}$, and test it with some prespecified values. Use the function $\mathsf{choose()}$ for the binomial coefficient.
+
+- Plot two binomials with $n=20$, and $p=0.3, 0.6$ respectively.
+
+---
+
+```{r ex1, echo=TRUE}
+
+#function for the binomial distribution
+binomial<-function(x,n,p){
+  return(choose(n,x)*p^(x)*(1-p)^(n-x))
+}
+#test for some prespecified values
+#compare with the R function dbinom
+x<-seq(from=0, to=50, length.out=51); n<-50; p<-0.3
+plot(x, binomial(x,n,p), xlab="x", ylab="f(x)", main="Binomial distribution")
+lines(x, dbinom(x,n,p), col="red")
+
+# Graph
+par(mfrow=c(1,2),mar=c(5,4,2,1), oma=c(0,0.2,0.2,0), pty="s", pch = 16)
+plot(0:20, binomial(0:20, 20, 0.3), 
+     xlab = "x", ylab = "Binom(x)", cex.lab=2, main="n=20, p=0.3", cex.main=2)
+plot(0:20, binomial(0:20, 20, 0.6), 
+     xlab = "x", ylab = "Binom(x)", cex.lab=2, main="n=20, p=0.6", cex.main=2)
+
+```
+
+## Ex. 2
+
+- Generate in $\mathsf{R}$ the same output (graph of `dnbinom(x, size=3,prob=0.08)` for $x=1,\ldots\,,\,10000$) but using $\mathsf{rgeom()}$ for generating the random variables. *Hint*: generate $n$ times three geometric distribution $X_1,\ldots, X_3$ with $p=0.08$, store them in a matrix and compute then the sum $Y$.
+
+---
+
+As hinted, we will approximate a signle sample from a negative binomial distribution with parameters $n=3, p=0.08$ with the sum of three indipendent samples from a geometric distribution with probability $p=0.08$.
+The histogram of a large number of such samples shall resemble the graph of said negative binomial distribution.
+
+```{r ex2, echo=TRUE}
+samples = 10000
+n = 3           #number of successes
+p = 0.08        #probability
+
+#build the samples*n matrix and sum it up
+Y = matrix(nrow = samples, ncol = n)
+for (i in 1:samples){
+  Y[i,] = rgeom(n,p)
+}
+Y = apply(Y,1,sum)
+
+# Graph
+hist(Y, probability = TRUE)
+lines(dnbinom(0:150, size = n, prob = p), col="red", lwd=2)
+```
+
+## Ex. 3
+
+- Show in $\mathsf{R}$, also graphically, that $\mbox{Gamma}(n/2, 1/2)$ coincides with a $\chi^{2}_{n}$.
+
+- Find the 5\% and the 95\% quantiles of a $\mbox{Gamma}(3,3)$. 
+
+---
+
+<!-- Dimostrazione formale TODO
+$$
+\begin{align}
+\text{Gamma}(x|\frac{n}{2},\frac{1}{2}) &= \frac{x^{1-\frac{1}{2}}  (\frac{1}{2})^\frac{n}{2}e^{-x\frac{1}{2}}}{\Gamma(\frac{n}{2})} \\
+\end{align}
+$$
+-->
+
+```{r ex3, echo=TRUE}
+par(mfrow=c(2,2))
+samples <- 10000
+
+for(df in c(2,10,20,50)){
+
+  Y<-rchisq(samples, df)
+  
+  alpha <- df/2
+  beta <- 1/2
+  
+  hist(Y, breaks=40, probability=TRUE, main=paste("n=",df))
+  curve(dgamma(x, alpha, beta), col="red", lwd=2, add=TRUE)
+  
+}
+```
+```{r ex3b, echo=TRUE}
+alpha <- 3
+beta <- 3
+
+curve(dgamma(x, alpha, beta), col="blue", lwd=2, xlim = c(0,4), main="5% and 95% quantiles for Gamma(x|3,3)")
+quantiles <- qgamma(c(0.05,0.95),shape= alpha, rate=beta)
+quantiles
+lines(quantiles,dgamma(quantiles,shape = alpha,rate = beta), type = "h")
+```
+
+## Ex. 4
+
+- Generate $n=1000$ values from a $\mbox{Beta}(5,2)$ and compute the sample mean and the sample variance.
+
+---
+
+```{r ex4, ech=TRUE}
+set.seed(5)
+
+n<-1000; alpha<-5; beta<-2
+sample<-rbeta(n,alpha,beta)
+sample_mean<-mean(sample)
+sample_var<-var(sample)
+
+sample_mean
+sample_var
+```
+
+## Ex. 5
+
+- Analogously, show with a simple $\mathsf{R}$ function that a negative binomial distribution may be seen as a mixture between a Poisson and a Gamma. In symbols: $X|Y \sim \mathcal{P}(Y)$, $Y \sim \mbox{Gamma}(\alpha, \beta)$, then $X \sim \ldots$.
+
+---
+
+Formally we can show that given
+
+$$
+\begin{align}
+p(X|Y) &= \mathcal{P}(x|y) = \frac{y^x e^{-y}}{x!} \\
+p(Y) &= \text{Gamma}(y|\alpha,\beta) = \frac{y^{\alpha-1}\beta^\alpha e^{-\beta y}}{\Gamma(\alpha)}
+\end{align}
+$$
+the marginal distribution of $X$ is
+$$\begin{align}
+p(X) &= \int p(X|Y)p(Y)\ dy \\
+&= \int \frac{y^x e^{-y}}{x!} \frac{y^{\alpha-1}\beta^\alpha e^{-\beta y}}{\Gamma(\alpha)}\ dy \\
+&= \frac{\beta^\alpha}{(1+\beta)^{(x+\alpha)}}\frac{\Gamma(x+\alpha)}{x!\,\Gamma(\alpha)}\int \frac{(1+\beta)^{(x+\alpha)}y^{(x+\alpha)-1}e^{-(1+\beta)y}}{\Gamma(x+\alpha)}\ dy\\
+&=\frac{(x+\alpha-1)!}{x!(\alpha-1)!}\left(\frac{1}{1+\beta}\right)^x\left(\frac{\beta}{1+\beta}\right)^\alpha \int \text{Gamma}(y|x+\alpha,1+\beta)\ dy \\
+&=\binom{x+\alpha-1}{x}\left(\frac{1}{1+\beta}\right)^x\left(1-\frac{1}{1+\beta}\right)^\alpha\ 1\\
+&= \text{NB}(x|\alpha,\frac{1}{1+\beta}).
+
+\end{align}$$
+Let's check this result experimentally:
+
+```{r ex5, echo=TRUE}
+
+set.seed(36)
+
+nbinom_mixture<-function(r, p, n){
+  Y = rgamma(n, r, p) #poisson parameter
+  X = rpois(n, Y)
+  return(X)
+}
+#test
+n<-100000; r<-10; p<-0.3
+hist(nbinom_mixture(r, p, n), probability=TRUE, breaks=20, main=paste("Histogram for negative binomial distribution with r = ", r, " p = ", p/(p+1)), xlab="x", cex.main=0.7)
+curve(dnbinom(x, r, p/(p+1)), xlim=c(0,100), add=TRUE, col="red", lwd=2)
+
+```
+
+## Ex. 6
+
+- Instead of using the built-in function $\mathsf{ecdf()}$, write your own $\mathsf{R}$ function for the empirical cumulative distribution function and reproduce the two plots above (i.e. $\text{Beta}(x|3,4)$'s cdf vs ecdf for $n=50,500$).
+
+---
+
+```{r ex6, echo=TRUE}
+
+myecdf <- function(sample,probs){
+  out = vector(length = length(probs))
+  for(i in 1:length(probs)){
+    out[i]=length(sample[sample<=probs[i]])/length(sample)
+  }
+  return(out)
+}
+
+set.seed(2)
+par(mfrow=c(1,2))
+n<-50
+y<-rbeta(n, 3,4)
+
+tt<-seq(from=0, to=1, by=0.01)
+
+plot(tt, myecdf(y,tt), main="ECDF and CDF: n=50")
+lines(tt, pbeta(tt,3,4), col=2, lty=2, lwd=2)
+n2<-500
+y2<-rbeta(n2, 3,4)
+
+plot(tt, myecdf(y2,tt), main="ECDF and CDF: n=500")
+lines(tt, pbeta(tt,3,4), col=2, lty=2, lwd=2)
+```
+
+## Ex. 7
+
+Compare in $\mathsf{R}$ the assumption of normality for these samples:
+
+- $y_1, \ldots, y_{100} \sim t_{\nu},$ with $\nu=5,20, 100$. What does it happens when the number of degrees of freedom $\nu$ increases?
+
+- $y_1, \ldots, y_{100} \sim \mbox{Cauchy}(0,1)$. Do you note something weird for the extremes quantiles? 
+
+---
+
+```{r ex7, echo=TRUE}
+set.seed(123)
+n<-100
+v<-c(5,20,100)
+
+par(mfrow=c(1,3))
+for(i in 1:3){
+  y<-rt(n, v[i])
+  qqplot(qt(ppoints(n), v[i]), y,
+      xlab = "True quantiles", ylab = "Sample quantiles",
+      main = paste("Q-Q plot for t = ", v[i]))
+  qqline(y, distribution = function(p) qnorm(p, mean(y), sd(y)), col = 2)
+}
+```
+When $\nu$ is increased the $t$ quantiles better the normal quantiles. 
+
+```{r ex7b, echo=TRUE}
+set.seed(123)
+y<-rcauchy(n,0,1)
+qqplot(qcauchy(ppoints(n),0,1), y, xlab = "True quantiles", ylab = "Sample quantiles", main ="Q-Q plot for  Cauchy(0,1)")
+qqline(y, distribution = function(p) qnorm(p, mean(y), sd(y)), col = 2)
+```
+As seen in the QQ-plot the Cauchy distribution tails are heavier than the normal's, thus causing the points to be further from the normal.
+
+## Ex. 8
+
+Write a general $\mathsf{R}$ function for checking the validity of the central limit theorem. *Hint* The function will consist of two parameters: clt_function <- function($\mathsf{n}$, $\mathsf{distr}$), where the first one is the sampe size and the second one is the kind of distribution from which you generate. Use plots for visualizing the results.
+
+---
+
+```{r ex8, echo=TRUE}
+set.seed(123)
+
+
+clt_function <- function(n,distr){
+   size  = length ( distr ) / n
+   sample_means = rep(0,size+1) 
+   for (i in 1:size) {
+    sample_means[i] = mean ( distr[(i*n + 1):(i*n + n)] ) 
+   }
+  return(sample_means)
+}
+
+#test and plot
+par(mfrow=c(1,2))
+sample_size=1000000
+n=200
+distr1 = rchisq ( sample_size , df = 1 ,ncp=0)
+clt1 <- clt_function(n, distr1) 
+hist(clt1, breaks = c(seq(from = 0, to = 10, by = 0.01)),xlim = c(0.5,1.5),probability = TRUE, main="CLT on Chi-square distribution")
+curve(dnorm(x,mean=mean(distr1),sqrt(var(distr1)/n)),add=TRUE,lwd=2,col="red")
+
+
+distr2 = rt ( sample_size , df = 10)
+clt2 <- clt_function(n, distr2) 
+hist(clt2, breaks = c(seq(from = -0.5, to=0.5, by = 0.01)),probability = TRUE, main="CLT on t distribution")
+curve(dnorm(x,mean=mean(distr2),sqrt(var(distr2)/n)),add=TRUE,lwd=2,col="red")
+```
