@@ -5,6 +5,7 @@ date: "Spring 2020"
 output:
   html_document:
     toc: yes
+    fig_caption: yes
   beamer_presentation:
     highlight: tango
   include: null
@@ -33,6 +34,7 @@ fontsize: 10pt
 ```{r global_options, include=FALSE}
 knitr::opts_chunk$set(fig.align = 'center', warning=FALSE, message=FALSE, fig.asp=0.625, dev='png', global.par = TRUE, dev.args=list(pointsize=10), fig.path = 'figs/')
 library(MASS)
+library(DAAG)
 ```
 ```{r setup, include=FALSE}
 library(knitr)
@@ -303,3 +305,294 @@ clt2 <- clt_function(n, distr2)
 hist(clt2, breaks = c(seq(from = -0.5, to=0.5, by = 0.01)),probability = TRUE, main="CLT on t distribution")
 curve(dnorm(x,mean=mean(distr2),sqrt(var(distr2)/n)),add=TRUE,lwd=2,col="red")
 ```
+
+# Exercises from DAAG
+
+## Ex. 4
+
+For the data frame `ais` (`DAAG` package)  
+1. Use the function `str()` to get information on each of the columns. Determine whether any of the columns hold missing values.  
+2. Make a table that shows the numbers of males and females for each different sport. In which sports is there a large imbalance (e.g., by a factor of more than 2:1) in the numbers of the two sexes?
+
+---
+```{r daag4.1, echo=TRUE}
+#DAAG library imported in global options
+
+# 1.
+str(ais)
+anyNA(ais)
+```
+
+The output of the second commands suggests there are no missing values in the table.
+
+```{r daag4.2, echo=TRUE}
+# 2.
+#make a table to show #of males and females for each ifferent sport
+sport_gender<-t(table(ais$sport, ais$sex))
+sport_gender
+imbalance<-c()
+for(i in 1:(dim(sport_gender)[2])){
+  if(sport_gender[1,i]>2*sport_gender[2,i]|sport_gender[2,i]>2*sport_gender[1,i]) #imbalance more than 2:1
+  {
+    imbalance<-c(imbalance,i)
+  }
+
+}
+
+#sports with large imbalance
+print(sport_gender[,imbalance])
+
+# keep memory clean
+rm(sport_gender,imbalance,i)
+```
+
+We can see there's a significant disproportion in the following sports:  
+- Gym and Netball, in favour of females  
+- T_Sprnt and W_Polo in favour of males
+
+## Ex. 6
+Create a data frame called `Manitoba.lakes` that contains the lake’s elevation (in meters above sea level) and area (in square kilometers) as listed below. Assign the names of the lakes using the `row.names()` function.  
+*... data ...*
+
+1. Use the following code to plot log2(area) versus elevation, adding labeling information (there is an extreme value of area that makes a logarithmic scale pretty much essential)  
+*... code ...*  
+Devise captions that explain the labeling on the points and on the y-axis. It will be necessary to explain how distances on the scale relate to changes in area.
+
+2. Repeat the plot and associated labeling, now plotting area versus elevation, but specifying `log="y"` in order to obtain a logarithmic y-scale. [Note: The `log="y"` setting carries across to the subsequent `text()` commands. See Subsection 2.1.5 for an example.]
+
+
+---
+
+```{r daag6.1, echo=TRUE}
+# Create Manitoba.lakes df by manual data insertion
+# NOTE: an homonimous df already exists. This definition will shadow it
+elevations <- c(217, 254, 248, 254, 253, 227, 178, 207, 217)
+areas <- c(24387, 5374, 4624, 2247, 1353, 1223, 1151, 755, 657)
+Manitoba.lakes <- data.frame(elevations, areas)
+names(Manitoba.lakes) <- c("elevation", "area")
+row.names(Manitoba.lakes) <- c("Winnipeg", "Winnipegosis", "Manitoba", "SouthernIndian", "Cedar", "Island", "Gods", "Cross", "Playgreen")
+
+# print the df
+Manitoba.lakes
+
+#cleanup
+rm(Manitoba.lakes,areas, elevations)
+```
+
+```{r daag6.2, echo=TRUE, fig.cap=" Elevation vs area of Manitoba's Largest Lakes. Points are labeled with lake's name and area (in square meters). Y-axis uses base-2 logarithm scale for compactness (i.e. each step increase corresponds to a doubling factor in the area)."}
+# copy-pasted code from point 1 
+attach(Manitoba.lakes)
+plot(log2(area)  ~ elevation, pch=16, xlim=c(170,280))
+
+# NB: Doubling the area increases log2(area) by 1.0
+text(log2(area)  ~ elevation,
+  labels=row.names(Manitoba.lakes), pos=4)
+text(log2(area)  ~ elevation, labels=area, pos=2)
+title("Manitoba’s Largest Lakes")
+
+detach(Manitoba.lakes)
+```
+
+Captions were enabled by adding the `fig_caption: yes` option in the Rmd header.
+
+Now, for point 2, we produce the same plot using a slightly different code.
+```{r daag6.3, echo=TRUE, fig.cap=" Elevation vs area of Manitoba's Largest Lakes. Points are labeled with lake's name and area (in square meters). Y-axis uses base-2 logarithm scale for compactness (there's no extravagant axis labeling so there's no need for twisted explanations)."}
+# copy-pasted code from point 1 
+attach(Manitoba.lakes)
+plot(area  ~ elevation, pch=16, xlim=c(170,280), log="y")
+
+# NB: Doubling the area increases log2(area) by 1.0
+text(area  ~ elevation,
+  labels=row.names(Manitoba.lakes), pos=4)
+text(area  ~ elevation, labels=area, pos=2)
+title("Manitoba’s Largest Lakes")
+
+detach(Manitoba.lakes)
+```
+
+## Ex. 11
+
+Run the following code:  
+*... code ...*
+
+Explain the output from the successive uses of table().
+
+---
+
+```{r daag11.1, echo=TRUE}
+gender <- factor(c(rep("female", 91), rep("male", 92)))
+table(gender)
+```
+The previous snippet creates a vector constituted by 91 repetitions of the character string `"female"` followed by 92 repetitions of `"male"`, then converts it to a vector of 2-level factors and stores it in the `gender` variable. The second line prints a summary of said vector.
+```{r daag11.2, echo=TRUE}
+gender <- factor(gender, levels=c("male", "female"))
+table(gender)
+```
+The previous snippet redefines the `gender` vector by explicitly redefining the levels. Since the new names coincide with the previous, this only has the effect of re-ordering the priority of the factor levels, leaving the vector unchanged
+```{r daag11.3, echo=TRUE}
+gender <- factor(gender, levels=c("Male", "female"))
+# Note the mistake: "Male" should be "male"
+table(gender)
+```
+Once again, the snippet redefines the factor levels by introducting a new (unused) level (i.e. `"Male"`) and undefining the level `"male"`. The effect is that the components of `gender` valued to the latter level become `<NA>`, and the table summary doesn't display their count since it has no corresponding level to associate them with. On the contrary, the count of `"Male"` entries in the vector is 0, since no component in the vector ever had such value.
+```{r daag11.4, echo=TRUE}
+table(gender, exclude=NULL)
+```
+This snippet simply asks for the same summary without omitting values with no associated level.
+```{r daag11.5, echo=TRUE}
+rm(gender)
+```
+... keeping the memory clean is important!
+
+## Ex. 12
+
+Write a function that calculates the proportion of values in a vector `x` that exceed some value
+cutoff.  
+1. Use the sequence of numbers 1, 2, . . . , 100 to check that this function gives the result that is expected.  
+2. Obtain the vector `ex01.36` from the `Devore6` (or `Devore7`) package. These data give the times required for individuals to escape from an oil platform during a drill. Use `dotplot()` to show the distribution of times. Calculate the proportion of escape times that exceed 7 minutes.
+
+---
+
+```{r daag12, echo=TRUE}
+
+# Function definition
+values_over_thresh <- function(x,cutoff){
+  return( length(x[x>cutoff]) / length(x) )
+}
+
+# 1, ... , 100 test
+x<- c(1:100)
+values_over_thresh(x,77)
+
+# ex01.36 test
+library(Devore7)
+x <- ex01.36[,]
+
+cutoff <- 7 * 60  # cutoff of 7 minutes = 7*60 seconds
+
+values_over_thresh(x, cutoff)
+
+# dotplot
+dotplot(x, xlab="time to escape (s)")
+
+# clean up
+rm(values_over_thresh,x, cutoff)
+```
+
+## Ex. 13
+
+The following plots four different transformations of the `Animals` data from the `MASS` package. What different aspects of the data do these different graphs emphasize? Consider the effect on low values of the variables, as contrasted with the effect on high values.  
+*... code ...*
+
+---
+
+See the plot caption for the answer.
+
+```{r daag13, echo=TRUE, fig.cap="Plots of body mass (Kg) vs brain mass (grams) for different animals. The top graphs show that most animals are clustered on the lower end of the scales, showing only few outliers, meaning that small masses are more common. The square root transformation applied in the second graph slightly reduces the clustering. The radix-10 and log transformation used in the other two graphs further expand the distances among datapoints and exposes the positive correlation between body and brain mass. In the last plot the positive correlation is clearer. The transformations applied cause lower values to expand and high values to shrink along both axes."}
+par(mfrow=c(2,2)) # 2 by 2 layout on the page
+
+library(MASS) # Animals is in the MASS package.
+
+plot(brain  ~ body, data=Animals)
+plot(sqrt(brain)  ~ sqrt(body), data=Animals)
+plot(I(brain^0.1)  ~ I(body^0.1), data=Animals) # I() forces its argument to be treated "as is" (i.e. avoids interpreting ^ as a formula operator)
+plot(log(brain)  ~ log(body), data=Animals)
+
+par(mfrow=c(1,1)) # Restore to 1 figure per page
+```
+
+
+## Ex. 15
+
+The data frame `socsupport` (`DAAG`) has data from a survey on social and other kinds of support, for a group of university students. It includes Beck Depression Inventory (BDI) scores. The following are two alternative plots of BDI against age:
+```{r daag15, echo=TRUE}
+plot(BDI  ~ age, data=socsupport)
+plot(BDI  ~ unclass(age), data=socsupport)
+```
+For examination of cases where the score seems very high, which plot is more useful? Explain.  
+Why is it necessary to be cautious in making anything of the plots for students in the three oldest age categories (25-30, 31-40, 40+)?
+
+---
+
+In the first plot outliers are shown more explicitly, so it is more convenient for the examination of cases where the score seems very high. However, data in the last three categories are scarce, so it is more risky to make inference on them. This is more clearly shown in the second plot.
+
+## Ex. 17
+
+Given a vector `x`, the following demonstrates alternative ways to create a vector of numbers
+from 1 through n, where n is the length of the vector:
+```{r daag17.1, echo=TRUE}
+x <- c(8, 54, 534, 1630, 6611)
+seq(1, length(x))
+seq(along=x)
+```
+Now set `x <- NULL` and repeat each of the calculations seq(1, length(x)) and
+seq(along=x).
+Which version of the calculation should be used in order to return a vector
+of length 0 in the event that the supplied argument is NULL?
+
+---
+
+```{r daag17.2, echo=TRUE}
+x <- NULL
+seq(1, length(x))
+seq(along=x)
+
+rm(x)
+```
+
+The second (i.e. `seq(along=x)`)!  
+The first  (i.e. `seq(1, length(x)`) produces a vector of length 2, which is not the intended result.
+
+## Ex. 20
+
+The help page for `iris` (type `help(iris)`) gives code that converts the data in `iris3` (`datasets` package) to case-by-variable format, with column names `“Sepal.Length”`,`“Sepal.Width”`, `“Petal.Length”`, `“Petal.Width”`, and `“Species”`. Look up the help pages for the functions that are used, and make sure that you understand them. Then add annotation to this code that explains each step in the computation.
+
+---
+
+`iris3` is a 3-dimensional array of size 50 by 4 by 3, as represented by S-PLUS. The first dimension gives the case number within the species subsample, the second the measurements with names "Sepal L.", "Sepal W.", "Petal L.", and "Petal W.", and the third the species.
+`iris` is a `data.frame` (that is, a 2-D table with named columns and indicized rows) containing the same data.
+
+The aim of this code is transforming `iris3` into `iris`.
+
+Here's a commented version of the code reported in `help(iris)`:
+
+```{r daag20, echo=TRUE}
+# The following command produces a list containing the names of the dimensions of iris3, namely:
+# - rownames(iris3) (NULL in this case, rows are unnamed)
+# - colnames(iris3) (“Sepal.Length”`,`“Sepal.Width”`, `“Petal.Length”`, `“Petal.Width”)
+# - The species, corresponding to the levels of the factor (i.e. "Setosa", "Versicolor" and "Virginica")
+dni3 <- dimnames(iris3) 
+
+# Recreates the `iris` df using `iris3` 
+#   from a matrix
+#     with values taken by permutating the columns of iris3, making it 2-D,
+#     into 4 columns.
+#     Column names are set with a list containing:
+#       NULL
+#       the dimnames of `iris` where
+#         "L." is substituted with ".Length"
+#         "W." is substituted with ".Width"
+#   and the Species field is defined separately as a vector of factors
+#     with 3 levels, each repeated 50 times
+#     where the levels' labels are taken from dni3[[3]]
+#       substituting "S" with "s" and "V" with "v"
+ii <- data.frame(
+  matrix(
+    aperm(iris3,c(1,3,2)),
+    ncol = 4,
+    dimnames = list(NULL,
+                    sub(" L.",".Length",
+                        sub(" W.",".Width", dni3[[2]])))),
+  Species = gl(3, 50,
+               labels = sub("S", "s",
+                            sub("V", "v", dni3[[3]])))
+  )
+
+# finally check if ii coincides with iris
+all.equal(ii, iris) # TRUE
+
+# clean up
+rm(ii, dni3)
+```
+
+
