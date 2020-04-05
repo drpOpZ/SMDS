@@ -1,6 +1,6 @@
 ---
 title: "Homework 1"
-author: "Michele Rispoli"
+author: "Group H - Thomas Deponte, Nicolas Plasencia, Michele Rispoli, Gaia Saveri"
 date: "Spring 2020"
 output:
   html_document:
@@ -28,7 +28,7 @@ header-includes:
 - \setbeamercolor{frametitle}{bg=Purple}
 institute: University of Udine & University of Trieste
 graphics: yes
-subtitle: Simulation, examples and exercises
+subtitle: "Deadline: 2020/04/08"
 fontsize: 10pt
 ---
 ```{r global_options, include=FALSE}
@@ -64,7 +64,7 @@ binomial<-function(x,n,p){
 }
 #test for some prespecified values
 #compare with the R function dbinom
-x<-seq(from=0, to=50, length.out=51); n<-50; p<-0.3
+x<-c(0:50); n<-50; p<-0.3
 plot(x, binomial(x,n,p), xlab="x", ylab="f(x)", main="Binomial distribution")
 lines(x, dbinom(x,n,p), col="red")
 
@@ -594,5 +594,207 @@ all.equal(ii, iris) # TRUE
 # clean up
 rm(ii, dni3)
 ```
+
+# Exercises from CS
+
+## Ex. 1.1
+Exponential random variable, $X ≥ 0$, has p.d.f. $f (x) = λ e^{−λx}$.  
+1. Find the c.d.f. and the quantile function for $X$ .  
+2. Find $\text{Pr}(X < λ)$ and the median of $X$ .  
+3. Find the mean and variance of $X$ .  
+
+---
+
+1.
+$$
+\begin{align}
+F_X(x) &= \int_0^x f_X(z)\ dz = -\int_0^x -\lambda e^{-\lambda x}\ dz = - \left[ e^{-\lambda x}\right]_0^x \\
+&= 1 - e^{-\lambda x}
+\end{align}
+$$
+By inverting the c.d.f. we may derive the quantile function $q_X(p)$:
+$$
+\begin{align}
+p &= 1 - e^{-\lambda x} \\
+e^{-\lambda x} &= 1 - p \\
+-\lambda x &= \log(1-p) \\
+x &= -\frac{1}{\lambda} \log(1-p) = q_X(p)
+\end{align}
+$$
+2.
+$$
+\begin{align}
+P(X<\lambda) &= F_X(\lambda)= 1 - e^{-\lambda^2}
+\end{align}
+$$
+while the median is the value $m$ for which $F_X(m)=\frac{1}{2}$:
+$$
+\begin{align}
+1-e^{-\lambda m} &= \frac{1}{2} \\
+e^{-\lambda m} &= \frac{1}{2} \\
+-\lambda m &= \log \frac{1}{2} \\
+m &= \lambda\log 2
+\end{align}
+$$
+3.
+$$
+\begin{align}
+\mathbb{E}[X] &= \int_0^{+\infty} f_X(x)x\ dx &\\
+&= \int_0^{+\infty} x\,\lambda e^{-\lambda x}\ dx &\text{integrate by parts }\\
+&= \left[ -x\, e^{-\lambda x}  \right]_0^{+ \infty} + \int_0^{+ \infty} e^{-\lambda x}\ dx \\
+&= 0\ -\ \frac{1}{\lambda} \left[ e^{-\lambda x}  \right]_0^{+ \infty} \\
+&= \frac{1}{\lambda}
+\end{align}
+$$
+$$
+\begin{align}
+\sigma_X^2 &= \mathbb{E}[X^2] - \mathbb{E}[X]^2 \\
+&= \int_0^{+\infty} x^2\,\lambda e^{-\lambda x}\ dx - \frac{1}{\lambda^2} &\text{integrate by parts }\\
+&= \left[ -x^2\, e^{-\lambda x}  \right]_0^{+ \infty} + \int_0^{+ \infty} 2x e^{-\lambda x}\ dx - \frac{1}{\lambda^2}\\
+&= 0\ +\ \frac{2}{\lambda}\ \mathbb{E}[X] - \frac{1}{\lambda^2}\\
+&= \frac{2}{\lambda^2} - \frac{1}{\lambda^2}\\
+&= \frac{1}{\lambda^2}
+\end{align}
+$$
+
+## Ex. 1.2
+Evaluate $Pr(X < 0.5, Y < 0.5)$ if $X$ and $Y$ have joint p.d.f. 
+$$f(x, y) = \begin{cases}
+  x+\frac{3y^2}{2} &\text{if }(x,y) \in (0,1)^2 \\
+  0 &\text{otherwise}
+\end{cases}
+$$
+
+---
+
+$$ 
+\begin{align}
+Pr(X < \frac{1}{2}, Y < \frac{1}{2}) &= \int_0^{\frac{1}{2}} \int_0^{\frac{1}{2}} f(x,y)\ dx\,dy \\
+&= \int_0^{\frac{1}{2}} \int_0^{\frac{1}{2}} x+\frac{3y^2}{2}\ dx\,dy \\
+&= \int_0^{\frac{1}{2}} \frac{1}{8}+\frac{3y^2}{4}\,dy \\
+&= \frac{1}{16} + \frac{1}{32} \\
+&= \frac{3}{32}
+\end{align}
+$$
+
+## Ex. 1.6
+Let $X$ and $Y$ be non-independent random variables, such that $\text{Var}(X) = \sigma_X^2$ , $\text{Var}(Y) = \sigma_Y^2$ and $\text{Cov}(X,Y) = \sigma_{XY}^2$. Using the result from Section 1.6.2, find $\text{Var}(X+Y)$ and $\text{Var}(X-Y)$.
+
+---
+
+*(NOTE: section 1.6.2 is about linear transformation of normal random vectors. Maybe it meant section 1.5.1 ?)*
+
+$$
+\begin{align}
+\text{Var}(X+Y) &= \mathbb{E}[(X+Y)^2] - \mathbb{E}[X+Y]^2 \\
+&= \mathbb{E}[X^2+Y^2 + 2XY] - (\mathbb{E}[X] + \mathbb{E}[Y])^2\\
+&= \mathbb{E}[X^2] + \mathbb{E}[Y^2] +2\mathbb{E}[XY] - \mathbb{E}[X]^2 - \mathbb{E}[Y]^2 -2\mathbb{E}[X]\mathbb{E}[Y] \\
+&= \mathbb{E}[X^2] - \mathbb{E}[X]^2+ \mathbb{E}[Y^2] - \mathbb{E}[Y]^2 +2 (\mathbb{E}[XY] -\mathbb{E}[X]\mathbb{E}[Y]) \\
+&= \sigma_X^2 + \sigma_Y^2 + 2\sigma_{XY}^2
+\end{align}
+$$
+
+$$
+\begin{align}
+\text{Var}(X-Y) &= \mathbb{E}[(X-Y)^2] - \mathbb{E}[X-Y]^2 \\
+&= \mathbb{E}[X^2+Y^2 - 2XY] - (\mathbb{E}[X] - \mathbb{E}[Y])^2\\
+&= \mathbb{E}[X^2] + \mathbb{E}[Y^2] -2\mathbb{E}[XY] - \mathbb{E}[X]^2 - \mathbb{E}[Y]^2 +2\mathbb{E}[X]\mathbb{E}[Y] \\
+&= \mathbb{E}[X^2] - \mathbb{E}[X]^2+ \mathbb{E}[Y^2] - \mathbb{E}[Y]^2 -2 (\mathbb{E}[XY] -\mathbb{E}[X]\mathbb{E}[Y]) \\
+&= \sigma_X^2 + \sigma_Y^2 - 2\sigma_{XY}^2
+\end{align}
+$$
+
+## Ex. 1.8
+If $\log (X) \sim \mathcal{N}(\mu,\sigma^2)$, find the p.d.f. for $X$ 
+
+---
+
+Be $Y = \log(X)$ and $f_Y = \mathcal{N}(y|\mu,\sigma^2)$ its p.d.f., then the p.d.f. of the transformed variable $X = e^Y$ is
+$$
+f_X(x) = f_Y(\log(x))\ \frac{d}{dx}\log(x) = \frac{1}{x\sqrt{2\pi \sigma^2}}e^{-\frac{1}{2\sigma^2}(\log x - \mu)^2},
+$$
+which is known as log-normal distribution.
+
+
+## Ex. 1.9
+Discrete random variable Y has a Poisson distribution with parameter $\lambda$ if its p.d.f. is $f (y) = \frac{\lambda^y e^{−λ}}{y!}$, for $y = 0, 1, . . .$  
+a. Find the moment generating function for $Y$ (hint: the power series representation of the exponential function is useful).  
+b. If $Y_1 ∼ \text{Poi}(\lambda_1)$ and independently $Y_2 ∼ \text{Poi}(\lambda_2)$, deduce the distribution of $Y_1 + Y_2$ , by employing a general property of m.g.f.s.  
+c. Making use of the previous result and the central limit theorem, deduce the normal approximation to the Poisson distribution.  
+d. Confirm the previous result graphically, using R functions `dpois`, `dnorm`, `plot` or `barplot` and `lines`. Confirm that the approximation improves with increasing $\lambda$.
+
+---
+1. Remembering that the exponential function may be expanded as
+
+$$ e^x = \sum_{n=0}^{+\infty} \frac{x^n}{n!} $$
+
+we may derive the m.g.f. for $Y$ as follows:
+
+$$ M_Y(s) = \mathbb{E}(e^{sY}) 
+= \sum_{y=0}^{+\infty} e^{sy}\ \frac{\lambda^y e^{−λ}}{y!} 
+= e^{-\lambda} \sum_{y=0}^{+\infty} \frac{(\lambda e^{s})^y}{y!} 
+= e^{-\lambda} e^{\lambda e^{s}}
+= e^{\lambda (e^{s} - 1)}
+$$
+2. Since $Y_1 \sim \text{Pois}(\lambda_1)$ and $Y_2 \sim \text{Pois}(\lambda_2)$ are independent we know that
+$$
+M_{Y_1+Y_2}(s) = M_{Y_1}(s)M_{Y_2}(s) 
+= e^{\lambda_1 (e^{s} - 1)}e^{\lambda_2 (e^{s} - 1)}
+= e^{(\lambda_1+\lambda_2) (e^{s} - 1)}\ ,
+$$
+which coincides with the m.g.f. of a Poisson distribution with parameter $\lambda = \lambda_1 + \lambda_2$ in an arbitrarily small interval enclosing 0.
+
+3. It follows from the previous result that, given $n$ indipendent random variables $X_i ~ \text{Pois}(\lambda_i)$, we have
+$$
+X_1 + ... + X_n= Z \sim \text{Poi}\left(\sum_{i=0}^n \lambda_i\right).
+$$
+Furthermore, both the mean and variance of a Poisson distributed random variable coincide
+$$
+\mathbb{E}(X_i) = \text{Var}(X_i) = \lambda_i,
+$$
+therefore if we assume $\lambda_i = \lambda\ \forall i$, the CLT also tells us that, as $n$ goes to infinity the distribution of $Z$ coverges to a normal distribution with $\mu = n\lambda$ and $\sigma^2 = n\lambda$, which combined with our previous findings gives us that
+
+$$
+\text{Poi}(n \lambda) \approx \mathcal{N}(n\lambda,n\lambda)\quad \text{for }n\rightarrow +\infty.
+$$
+
+4. Let's check our last result experimentally using R plots:
+
+```R
+par(mfrow=c(2,2))
+
+lambda <- 5
+for(lambda in c(1,5,10,100)){
+  
+  plot(0:125, dpois(0:125,lambda),
+       xlim=c(0,125), ylim=c(0,0.20),
+       col="red", type="l",
+       xlab="x", ylab="f(x)",
+       main=paste("CLT for Poisson distribution with lambda= ",lambda),
+       cex.main=0.6)
+  lines(0:125, dnorm(0:125,lambda,sqrt(lambda)),
+        col="black", type="h")
+```
+
+<!--NOTE: Plotting anything at this point apparently breaks the layout!-->
+
+<!--```{r cs1.9, echo=FALSE, fig.cap="The plots show that the normal curve approximation (black lines) of the poisson distribution (red curve) gets better as lambda increases."}
+
+par(mfrow=c(2,2))
+
+lambda <- 5
+for(lambda in c(1,5,10,100)){
+  
+  plot(0:125, dpois(0:125,lambda),
+       xlim=c(0,125), ylim=c(0,0.20),
+       col="red", type="l",
+       xlab="x", ylab="f(x)",
+       main=paste("CLT for Poisson distribution with lambda= ",lambda),
+       cex.main=0.6)
+  lines(0:125, dnorm(0:125,lambda,sqrt(lambda)),
+        col="black", type="h")
+}
+```
+-->
 
 
