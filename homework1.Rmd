@@ -299,7 +299,7 @@ Write a general $\mathsf{R}$ function for checking the validity of the central l
 ```{r ex8, echo=TRUE}
 set.seed(123)
 
-#NOTE: From the Hint given it is unclear how "clt_function" should determine the parameters to pass to the "dists" density function: since the number of parameters required by it is unkown "clt_function" would either have to admit variadic inputs or provide a prefixed switch-case block. In order to allow the usage of the function with a generic distribution, we opted instead treat "dists" as a vector of samples from a distribution defined, and thus parametrized, by the user. "clt_function" then produces an output vector where each component is the mean of n values sequentially drawn from "dists", which can then be used to produce the graphical demonstration of CLT.
+#NOTE: From the Hint given it is unclear how "clt_function" should determine the parameters to pass to the "dists" density function: since the number of parameters required by it is unkown, "clt_function" would either have to admit variadic inputs or provide a prefixed switch-case block. In order to allow the usage of the function with a generic distribution, we opted instead to treat "dists" as a vector of samples from a distribution defined, and thus parametrized, by the user. "clt_function" then produces an output vector where each component is the mean of n values sequentially drawn from "dists", which can then be used to produce the graphical demonstration of CLT.
 
 # n = no. samples to average over to produce each  of the outputs
 # distr = vector of samples from a single distribution
@@ -331,7 +331,7 @@ hist(clt2, breaks = c(seq(from = -0.5, to=0.5, by = 0.01)),probability = TRUE, m
 curve(dnorm(x,mean=mean(distr2),sqrt(var(distr2)/n)),add=TRUE,lwd=2,col="red")
 
 # cleanup
-rm(clt_function, sample_size, n)
+rm(clt_function, sample_size, n, distr1, clt1, distr2, clt2)
 ```
 
 # Exercises from DAAG
