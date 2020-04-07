@@ -58,12 +58,12 @@ local({
 
 ```{r ex1, echo=TRUE}
 
-#function for the binomial distribution
+# function for the binomial distribution
 binomial<-function(x,n,p){
   return(choose(n,x)*p^(x)*(1-p)^(n-x))
 }
-#test for some prespecified values
-#compare with the R function dbinom
+# test for some prespecified values
+# compare with the R function dbinom
 x<-c(0:50); n<-50; p<-0.3
 plot(x, binomial(x,n,p), xlab="x", ylab="f(x)", main="Binomial distribution")
 lines(x, dbinom(x,n,p), col="red")
@@ -71,10 +71,12 @@ lines(x, dbinom(x,n,p), col="red")
 # Graph
 par(mfrow=c(1,2),mar=c(5,4,2,1), oma=c(0,0.2,0.2,0), pty="s", pch = 16)
 plot(0:20, binomial(0:20, 20, 0.3), 
-     xlab = "x", ylab = "Binom(x)", cex.lab=2, main="n=20, p=0.3", cex.main=2)
+     xlab = "x", ylab = "Binom(x)", cex.lab=1, main="n=20, p=0.3", cex.main=2)
 plot(0:20, binomial(0:20, 20, 0.6), 
-     xlab = "x", ylab = "Binom(x)", cex.lab=2, main="n=20, p=0.6", cex.main=2)
+     xlab = "x", ylab = "Binom(x)", cex.lab=1, main="n=20, p=0.6", cex.main=2)
 
+# cleanup
+rm(x,n,p, binomial)
 ```
 
 ## Ex. 2
@@ -83,15 +85,15 @@ plot(0:20, binomial(0:20, 20, 0.6),
 
 ---
 
-As hinted, we will approximate a signle sample from a negative binomial distribution with parameters $n=3, p=0.08$ with the sum of three indipendent samples from a geometric distribution with probability $p=0.08$.
+As hinted, we will approximate a single sample from a negative binomial distribution with parameters $n=3, p=0.08$ with the sum of three indipendent samples from a geometric distribution with probability $p=0.08$.
 The histogram of a large number of such samples shall resemble the graph of said negative binomial distribution.
 
 ```{r ex2, echo=TRUE}
 samples = 10000
-n = 3           #number of successes
-p = 0.08        #probability
+n = 3           # number of successes
+p = 0.08        # probability
 
-#build the samples*n matrix and sum it up
+# build the samples*n matrix and sum it up
 Y = matrix(nrow = samples, ncol = n)
 for (i in 1:samples){
   Y[i,] = rgeom(n,p)
@@ -101,6 +103,10 @@ Y = apply(Y,1,sum)
 # Graph
 hist(Y, probability = TRUE)
 lines(dnbinom(0:150, size = n, prob = p), col="red", lwd=2)
+
+
+# cleanup
+rm(samples, n, p, Y)
 ```
 
 ## Ex. 3
@@ -111,15 +117,9 @@ lines(dnbinom(0:150, size = n, prob = p), col="red", lwd=2)
 
 ---
 
-<!-- Dimostrazione formale TODO
-$$
-\begin{align}
-\text{Gamma}(x|\frac{n}{2},\frac{1}{2}) &= \frac{x^{1-\frac{1}{2}}  (\frac{1}{2})^\frac{n}{2}e^{-x\frac{1}{2}}}{\Gamma(\frac{n}{2})} \\
-\end{align}
-$$
--->
-
 ```{r ex3, echo=TRUE}
+set.seed(42)
+
 par(mfrow=c(2,2))
 samples <- 10000
 
@@ -141,8 +141,13 @@ beta <- 3
 
 curve(dgamma(x, alpha, beta), col="blue", lwd=2, xlim = c(0,4), main="5% and 95% quantiles for Gamma(x|3,3)")
 quantiles <- qgamma(c(0.05,0.95),shape= alpha, rate=beta)
-quantiles
+print(paste("5% quantile of a Gamma(3,3) is: ",quantiles[1]))
+print(paste("95% quantile of a Gamma(3,3) is: ",quantiles[2]))
+# graphical visualization of the above quantiles
 lines(quantiles,dgamma(quantiles,shape = alpha,rate = beta), type = "h")
+
+# cleanup
+rm(samples, df, alpha, beta, quantiles)
 ```
 
 ## Ex. 4
@@ -161,6 +166,9 @@ sample_var<-var(sample)
 
 sample_mean
 sample_var
+
+# cleanup
+rm(n, alpha, beta, sample, sample_mean, sample_var)
 ```
 
 ## Ex. 5
@@ -178,15 +186,18 @@ p(Y) &= \text{Gamma}(y|\alpha,\beta) = \frac{y^{\alpha-1}\beta^\alpha e^{-\beta 
 \end{align}
 $$
 the marginal distribution of $X$ is
-$$\begin{align}
+
+$$
+\begin{align}
 p(X) &= \int p(X|Y)p(Y)\ dy \\
 &= \int \frac{y^x e^{-y}}{x!} \frac{y^{\alpha-1}\beta^\alpha e^{-\beta y}}{\Gamma(\alpha)}\ dy \\
 &= \frac{\beta^\alpha}{(1+\beta)^{(x+\alpha)}}\frac{\Gamma(x+\alpha)}{x!\,\Gamma(\alpha)}\int \frac{(1+\beta)^{(x+\alpha)}y^{(x+\alpha)-1}e^{-(1+\beta)y}}{\Gamma(x+\alpha)}\ dy\\
 &=\frac{(x+\alpha-1)!}{x!(\alpha-1)!}\left(\frac{1}{1+\beta}\right)^x\left(\frac{\beta}{1+\beta}\right)^\alpha \int \text{Gamma}(y|x+\alpha,1+\beta)\ dy \\
 &=\binom{x+\alpha-1}{x}\left(\frac{1}{1+\beta}\right)^x\left(1-\frac{1}{1+\beta}\right)^\alpha\ 1\\
-&= \text{NB}(x|\alpha,\frac{1}{1+\beta}).
+&= \text{NB}(x|\alpha,\frac{1}{1+\beta})
+\end{align}
+$$
 
-\end{align}$$
 Let's check this result experimentally:
 
 ```{r ex5, echo=TRUE}
@@ -194,15 +205,17 @@ Let's check this result experimentally:
 set.seed(36)
 
 nbinom_mixture<-function(r, p, n){
-  Y = rgamma(n, r, p) #poisson parameter
+  Y = rgamma(n, r, p) # poisson parameter
   X = rpois(n, Y)
   return(X)
 }
-#test
+# test
 n<-100000; r<-10; p<-0.3
-hist(nbinom_mixture(r, p, n), probability=TRUE, breaks=20, main=paste("Histogram for negative binomial distribution with r = ", r, " p = ", p/(p+1)), xlab="x", cex.main=0.7)
+hist(nbinom_mixture(r, p, n), probability=TRUE, breaks=20, main=paste("Histogram for negative binomial distribution with r = ", r, " p = ", p/(p+1)), xlab="x", cex.main=0.9)
 curve(dnbinom(x, r, p/(p+1)), xlim=c(0,100), add=TRUE, col="red", lwd=2)
 
+# cleanup
+rm(nbinom_mixture, n, r, p)
 ```
 
 ## Ex. 6
@@ -228,13 +241,16 @@ y<-rbeta(n, 3,4)
 
 tt<-seq(from=0, to=1, by=0.01)
 
-plot(tt, myecdf(y,tt), main="ECDF and CDF: n=50")
+plot(tt, myecdf(y,tt), xlab="x", ylab="ecdf(x)", main="ECDF and CDF: n=50")
 lines(tt, pbeta(tt,3,4), col=2, lty=2, lwd=2)
 n2<-500
 y2<-rbeta(n2, 3,4)
 
-plot(tt, myecdf(y2,tt), main="ECDF and CDF: n=500")
+plot(tt, myecdf(y2,tt), xlab="x", ylab="ecdf(x)", main="ECDF and CDF: n=500")
 lines(tt, pbeta(tt,3,4), col=2, lty=2, lwd=2)
+
+#cleanup
+rm(myecdf, n, y, tt, n2, y2)
 ```
 
 ## Ex. 7
@@ -261,37 +277,46 @@ for(i in 1:3){
   qqline(y, distribution = function(p) qnorm(p, mean(y), sd(y)), col = 2)
 }
 ```
-When $\nu$ is increased the $t$ quantiles better the normal quantiles. 
+When $\nu$ is increased the $t$ quantiles better approximate the normal quantiles, in particular there is an improvement on the tails. 
 
 ```{r ex7b, echo=TRUE}
 set.seed(123)
 y<-rcauchy(n,0,1)
 qqplot(qcauchy(ppoints(n),0,1), y, xlab = "True quantiles", ylab = "Sample quantiles", main ="Q-Q plot for  Cauchy(0,1)")
 qqline(y, distribution = function(p) qnorm(p, mean(y), sd(y)), col = 2)
+
+# cleanup
+rm(n, v, i, y)
 ```
 As seen in the QQ-plot the Cauchy distribution tails are heavier than the normal's, thus causing the points to be further from the normal.
 
 ## Ex. 8
 
-Write a general $\mathsf{R}$ function for checking the validity of the central limit theorem. *Hint* The function will consist of two parameters: clt_function <- function($\mathsf{n}$, $\mathsf{distr}$), where the first one is the sampe size and the second one is the kind of distribution from which you generate. Use plots for visualizing the results.
+Write a general $\mathsf{R}$ function for checking the validity of the central limit theorem. *Hint* The function will consist of two parameters: clt_function <- function($\mathsf{n}$, $\mathsf{distr}$), where the first one is the sample size and the second one is the kind of distribution from which you generate. Use plots for visualizing the results.
 
 ---
 
 ```{r ex8, echo=TRUE}
 set.seed(123)
 
+#NOTE: From the Hint given it is unclear how "clt_function" should determine the parameters to pass to the "dists" density function: since the number of parameters required by it is unkown "clt_function" would either have to admit variadic inputs or provide a prefixed switch-case block. In order to allow the usage of the function with a generic distribution, we opted instead treat "dists" as a vector of samples from a distribution defined, and thus parametrized, by the user. "clt_function" then produces an output vector where each component is the mean of n values sequentially drawn from "dists", which can then be used to produce the graphical demonstration of CLT.
 
+# n = no. samples to average over to produce each  of the outputs
+# distr = vector of samples from a single distribution
+# output = vector of means of groups of n values taken from "distr"
 clt_function <- function(n,distr){
-   size  = length ( distr ) / n
-   sample_means = rep(0,size+1) 
+   size  = length ( distr ) / n # size of the output
+   sample_means = rep(0,size+1)  # initialize output vector with 0s
    for (i in 1:size) {
-    sample_means[i] = mean ( distr[(i*n + 1):(i*n + n)] ) 
+    sample_means[i] = mean ( distr[(i*n + 1):(i*n + n)] ) #populate the output vector
    }
   return(sample_means)
 }
 
-#test and plot
+# test and plot
 par(mfrow=c(1,2))
+
+# test with chi-squared
 sample_size=1000000
 n=200
 distr1 = rchisq ( sample_size , df = 1 ,ncp=0)
@@ -299,11 +324,14 @@ clt1 <- clt_function(n, distr1)
 hist(clt1, breaks = c(seq(from = 0, to = 10, by = 0.01)),xlim = c(0.5,1.5),probability = TRUE, main="CLT on Chi-square distribution")
 curve(dnorm(x,mean=mean(distr1),sqrt(var(distr1)/n)),add=TRUE,lwd=2,col="red")
 
-
+# test with t student
 distr2 = rt ( sample_size , df = 10)
 clt2 <- clt_function(n, distr2) 
 hist(clt2, breaks = c(seq(from = -0.5, to=0.5, by = 0.01)),probability = TRUE, main="CLT on t distribution")
 curve(dnorm(x,mean=mean(distr2),sqrt(var(distr2)/n)),add=TRUE,lwd=2,col="red")
+
+# cleanup
+rm(clt_function, sample_size, n)
 ```
 
 # Exercises from DAAG
@@ -323,11 +351,11 @@ str(ais)
 anyNA(ais)
 ```
 
-The output of the second commands suggests there are no missing values in the table.
+The output of the second command suggests there are no missing values in the table.
 
 ```{r daag4.2, echo=TRUE}
 # 2.
-#make a table to show #of males and females for each ifferent sport
+#make a table to show #of males and females for each different sport
 sport_gender<-t(table(ais$sport, ais$sex))
 sport_gender
 imbalance<-c()
@@ -633,7 +661,7 @@ $$
 1-e^{-\lambda m} &= \frac{1}{2} \\
 e^{-\lambda m} &= \frac{1}{2} \\
 -\lambda m &= \log \frac{1}{2} \\
-m &= \lambda\log 2
+m &= \frac{\log 2}{\lambda}
 \end{align}
 $$
 3.
@@ -724,6 +752,7 @@ c. Making use of the previous result and the central limit theorem, deduce the n
 d. Confirm the previous result graphically, using R functions `dpois`, `dnorm`, `plot` or `barplot` and `lines`. Confirm that the approximation improves with increasing $\lambda$.
 
 ---
+
 1. Remembering that the exponential function may be expanded as
 
 $$ e^x = \sum_{n=0}^{+\infty} \frac{x^n}{n!} $$
@@ -736,15 +765,15 @@ $$ M_Y(s) = \mathbb{E}(e^{sY})
 = e^{-\lambda} e^{\lambda e^{s}}
 = e^{\lambda (e^{s} - 1)}
 $$
-2. Since $Y_1 \sim \text{Pois}(\lambda_1)$ and $Y_2 \sim \text{Pois}(\lambda_2)$ are independent we know that
+2. Since $Y_1 \sim \text{Poi}(\lambda_1)$ and $Y_2 \sim \text{Poi}(\lambda_2)$ are independent we know that
 $$
 M_{Y_1+Y_2}(s) = M_{Y_1}(s)M_{Y_2}(s) 
 = e^{\lambda_1 (e^{s} - 1)}e^{\lambda_2 (e^{s} - 1)}
 = e^{(\lambda_1+\lambda_2) (e^{s} - 1)}\ ,
 $$
-which coincides with the m.g.f. of a Poisson distribution with parameter $\lambda = \lambda_1 + \lambda_2$ in an arbitrarily small interval enclosing 0.
+which coincides with the m.g.f. of a Poisson distribution with parameter $\lambda = \lambda_1 + \lambda_2$ $\forall s\in \mathbb{R}$, in particular in an arbitrarily small interval enclosing 0, hence we can deduce $Y_1+Y_2\sim \text{Poi}(\lambda_1+\lambda_2)$.
 
-3. It follows from the previous result that, given $n$ indipendent random variables $X_i ~ \text{Pois}(\lambda_i)$, we have
+3. It follows from the previous result that, given $n$ indipendent random variables $X_i \sim \text{Pois}(\lambda_i)$, we have
 $$
 X_1 + ... + X_n= Z \sim \text{Poi}\left(\sum_{i=0}^n \lambda_i\right).
 $$
@@ -752,7 +781,7 @@ Furthermore, both the mean and variance of a Poisson distributed random variable
 $$
 \mathbb{E}(X_i) = \text{Var}(X_i) = \lambda_i,
 $$
-therefore if we assume $\lambda_i = \lambda\ \forall i$, the CLT also tells us that, as $n$ goes to infinity the distribution of $Z$ coverges to a normal distribution with $\mu = n\lambda$ and $\sigma^2 = n\lambda$, which combined with our previous findings gives us that
+therefore if we assume $\lambda_i = \lambda\ \forall i=1,..,n$, the CLT also tells us that, as $n$ goes to infinity the distribution of  $Z$ coverges to a normal distribution with $\mu = n\lambda$ and $\sigma^2 = n\lambda$, which combined with our previous findings gives us that
 
 $$
 \text{Poi}(n \lambda) \approx \mathcal{N}(n\lambda,n\lambda)\quad \text{for }n\rightarrow +\infty.
@@ -760,41 +789,25 @@ $$
 
 4. Let's check our last result experimentally using R plots:
 
-```R
-par(mfrow=c(2,2))
-
-lambda <- 5
-for(lambda in c(1,5,10,100)){
-  
-  plot(0:125, dpois(0:125,lambda),
-       xlim=c(0,125), ylim=c(0,0.20),
-       col="red", type="l",
-       xlab="x", ylab="f(x)",
-       main=paste("CLT for Poisson distribution with lambda= ",lambda),
-       cex.main=0.6)
-  lines(0:125, dnorm(0:125,lambda,sqrt(lambda)),
-        col="black", type="h")
-```
-
-<!--NOTE: Plotting anything at this point apparently breaks the layout!-->
-
-<!--```{r cs1.9, echo=FALSE, fig.cap="The plots show that the normal curve approximation (black lines) of the poisson distribution (red curve) gets better as lambda increases."}
+```{r, echo=TRUE}
+set.seed(4)
 
 par(mfrow=c(2,2))
-
-lambda <- 5
-for(lambda in c(1,5,10,100)){
-  
-  plot(0:125, dpois(0:125,lambda),
-       xlim=c(0,125), ylim=c(0,0.20),
-       col="red", type="l",
-       xlab="x", ylab="f(x)",
-       main=paste("CLT for Poisson distribution with lambda= ",lambda),
-       cex.main=0.6)
-  lines(0:125, dnorm(0:125,lambda,sqrt(lambda)),
-        col="black", type="h")
+total_difference<-c() #total error committed by approximating the poisson with the normal
+for(lambda in c(5,20,50,100)){
+  poisson_sample<-dpois(0:125, lambda)
+  normal_sample<-dnorm(0:125, lambda, sqrt(lambda))
+  plot(0:125, poisson_sample, xlim=c(0,125), ylim=c(0, 0.20), col="red", type = "l", xlab = "x", ylab="f(x)", main=paste("CLT for Poisson distribution with lambda= ", lambda), cex.main=0.6)
+  lines(0:125, normal_sample, col="black", type="h")
+  total_difference<-c(total_difference, sum(abs(poisson_sample -normal_sample)))
 }
 ```
--->
+
+The following plot shows how the approximation gets better increasing $\lambda$. 
+
+```{r, echo=TRUE}
+plot(c(5,20,50,100), total_difference, xlab="lambda", ylab="difference")
+
+```
 
 
