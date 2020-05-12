@@ -49,7 +49,7 @@ local({
 # Exercises from LAB
 
 ## Ex. 1
-Given the following samples $y_1,...,y_15$ of a R.V. $Y \sim \text{Weibull}(\gamma,\beta)$
+Given the following samples $y_1,...,y_{15}$ of a R.V. $Y \sim \text{Weibull}(\gamma,\beta)$
 ```R
 y <- c(155.9, 200.2, 143.8, 150.1,152.1, 142.2, 147, 146, 146,
  170.3, 148, 140, 118, 144, 97)
@@ -179,16 +179,16 @@ text(7,-7.5,"95% Wald CI",col=2)
 ---
 
   I can treat $\beta$ as the parameter of interest and $\gamma$ as the nuisance parameter. We may then define the profile log-likelihood:
-  $$
+$$
   l_p(\beta)=\underset{\gamma}{max} l(\gamma,\beta,y)=l(\hat{\gamma_{\beta}},\beta,y)
 $$
-  where $\hat{\gamma_{\beta}}$ is the constrained MLE for $\gamma$ with $\beta$ fixed.
+where $\hat{\gamma_{\beta}}$ is the constrained MLE for $\gamma$ with $\beta$ fixed.
 
 First of all I plot the contour plot of the log likelihood function and then I plot a red dashed line which corresponds to the profile log likelihood defined above.
 
 In the case in which $\gamma$ was the parameter of interest I was able, equating to 0 the derivative of the log likelihood wrt $\beta$, to find an analytical formula to compute $\beta$ as function of $\gamma$.
 
-  But now that $\beta$ is the parameter of interest I cannot find a close formula to compute $\gamma$ analytically having $\beta$ from the partial derivative of the log likelihood wrt $\gamma$. Hence I've created a function $\textit{deriv()}$ which computes the derivative $\frac{\delta}{\delta\gamma}l(\gamma,\beta,y)$ and another function $gamma.beta_fun$ which given a value for $\beta$ computes numerically a zero of the $\textit{deriv()}$ function which now depends only on $\gamma$.
+  But now that $\beta$ is the parameter of interest I cannot find a close formula to compute $\gamma$ analytically having $\beta$ from the partial derivative of the log likelihood w.r.t $\gamma$. Hence I've created a function $\textit{deriv()}$ which computes the derivative $\frac{\delta}{\delta\gamma}l(\gamma,\beta,y)$ and another function $gamma.beta_fun$ which given a value for $\beta$ computes numerically a zero of the $\textit{deriv()}$ function which now depends only on $\gamma$.
   
 ```{r lab3.1, echo=TRUE}
 # data 
@@ -277,16 +277,13 @@ text(156,-7,"95% Deviance CI",col=2)
 
 ## Ex. 5
 
-In $\textit{sim}$ in the code above, you find the MCMC output which allows to approximate the posterior distribution of our parameter of interest with $S$ draws of $\theta$. Please, produce an histogram for these random draws $\theta(1),…,\theta(S)$, compute the empirical quantiles, and overlap the true posterior distribution.
+In `sim` in the code above, you find the MCMC output which allows to approximate the posterior distribution of our parameter of interest with $S$ draws of $\theta$. Please, produce an histogram for these random draws $\theta(1),…,\theta(S)$, compute the empirical quantiles, and overlap the true posterior distribution.
 
 ---
 
 We suppose $y_1,...,y_n\sim\mathcal{N(\theta,\sigma^2)}$, with $\sigma^2$ known. We choose a normal prior distribution for theta: $\mathcal{N}(\mu,\tau^2)$, and we know that the posterior distribution of theta will be proportional to a normal distribution with new parameters:
-$$
-\mu^*=\frac{\frac{n}{\sigma^2}\bar{y}+\frac{1}{\tau^2}\mu}{\frac{n}{\sigma^2}+\frac{1}{\tau^2}}\\
-
-\tau^{*2}=\Big(\frac{n}{\sigma^2}+\frac{1}{\tau^2}\Big)^{-1}
-$$
+$$\mu^*=\frac{\frac{n}{\sigma^2}\bar{y}+\frac{1}{\tau^2}\mu}{\frac{n}{\sigma^2}+\frac{1}{\tau^2}}$$
+$$\tau^{*2}=\Big(\frac{n}{\sigma^2}+\frac{1}{\tau^2}\Big)^{-1}$$
 
 First of all I generate some data fixing the parameters:
 ```{r lab5.1, echo=TRUE}
@@ -307,11 +304,11 @@ tau2 <- 2
 y <- rnorm(n,theta_sample, sqrt(sigma2))
 ```
 
-Now I can use $\textit{stan}$ to simulate values from the posterior distribution:
+Now I can use `stan` to simulate values from the posterior distribution:
 
 ```{r lab5.2, echo=TRUE}
 data<- list(N=n, y=y, sigma =sqrt(sigma2), mu = mu, tau = sqrt(tau2))
-fit <- stan(file="/home/claudia/Units/StatisticalMethodsforDataScience/Exercises/normal.stan", data = data, chains = 4, iter=2000)
+fit <- stan(file="3/normal.stan", data = data, chains = 4, iter=2000)
 
 sim <- extract(fit)
 ```
@@ -334,7 +331,7 @@ curve(dnorm(x, mu_star, sd_star),
 legend("topright", "true posterior",lty=1, col="blue",lwd=2)
 }
 ```
-Now I want to compute the empirical quantiles and compare them with the quantiles of the true posterior distribution. I compute the empirical quantiles and the theoretical ones (the quantiles of a normal $\mathcal{N}(\mu^*,\tau^{*2})$) and then use the qqplot to compare them:
+Now I want to compute the empirical quantiles and compare them with the quantiles of the true posterior distribution. I compute the empirical quantiles and the theoretical ones (the quantiles of a normal $\mathcal{N}(\mu^*,\tau^{*2})$) and then use the `qqplot` to compare them:
 ```{r lab5.4, echo=TRUE}
 probs=seq(0,1,length=100)
 
@@ -356,8 +353,11 @@ Launch the following line of R code:
 posterior <- as.array(fit)
 ```
 Use now the `bayesplot` package. Read the help and produce for this example, using the object posterior, the following plots:
+
 - posterior intervals.
+
 - posterior areas.
+
 - marginal posterior distributions for the parameters.
 
 Quickly comment.
@@ -393,7 +393,6 @@ y <- rnorm(n,theta_sample, sqrt(sigma2))
 # launch Stan model
 data<- list(N=n, y=y, sigma =sqrt(sigma2), mu = mu, tau = sqrt(tau2))
 fit <- stan(file="3/normal.stan", data = data, chains = 4, iter=2000)
-
 # retrieve the array of posterior samples from the stan HMC simulation 
 posterior <- as.array(fit)
 
@@ -426,8 +425,11 @@ The three graphs produced depict the same posterior estimates for the (only) par
 ## Ex. 7
 
 Suppose you receive $n=15$ phone calls in a day and you want to build a model to asses their average length. Your likelihood for each call is $y_i \sim \text{Poisson}(\lambda)$. Now, you have to choose the prior $\pi(\lambda)$. Please, tell which of these prior is adequate to describe the problem and provide a short motivation for each of them:
+
 1. $\pi(\lambda)=\text{Beta}(4,2)$;
+
 2. $\pi(\lambda)=\text{Normal}(1,2)$;
+
 3. $\pi(\lambda)=\text{Gamma}(4,2)$;
 
 Now compute your posterior as $\pi(\lambda|y)\propto L(\lambda;y)\pi(\lambda)$ for the selected prior. If your first choice was correct you will be able to compute it analitically.
@@ -441,21 +443,21 @@ Supposing that the length of the call is measured in minutes, let's plot and dis
 x = seq(0,1, length=1000)
 plot(x, dbeta(x, 4, 2), ylab="density", type ="l", lwd=1, col=4)
 ```
-The Beta distribution is not suitable for our problem, the main reason is the fact that it is defined only for $x\in [0,1]$ so the maximum length of the phone calls we receive can only be 1 minute, which is very unlikely to be real.
+The Beta distribution is not suitable for our problem, the main reason is the fact that it is defined only for $x\in [0,1]$ so the mean length of the phone calls we receive could only be between 0 and 1 minute, which is very unlikely to be real.
 
 2. Normal(1,2)
 ```{r lab7.2, echo=TRUE}
-x <- seq(0, 10, length=100)
+x <- seq(-10, 10, length=100)
 plot(x, dnorm(x, 1, 2), type="l", lwd=1, col=4)
 ```
-The normal distribution is not suitable for our problem, since it makes no sense that there is a probability different than zero of a call having length = 0 minutes.
+The normal distribution is not suitable for our problem, since it makes no sense that there could be begative values for the mean length of our phone calls.
 
 3. Gamma(4,2)
 ```{r lab7.3, echo=TRUE}
 x <- seq(0, 10, length=100)
 plot(x, dgamma(x, 4, 2), type="l", lwd=1, col=4)
 ```
-The gamma distribution is a suitable solution for our problem since it has zero probability of having zero length calls and the major part of the calls will be distributed around one and a half minutes, which makes sense.
+The gamma distribution is a suitable solution for our problem since it is defined for positive values and the possibile values for the mean lenght of the phone calls make sense.
 
 Our data $\bar{y}=y_1,\dots,y_{n}$ are Poisson i.i.d. so the likelihood function will be:
 
@@ -471,11 +473,52 @@ we can ignore the terms that do not depend on $\lambda$ so we obtain:
 $$\pi(\lambda|{y}) \propto \mathrm{e}^{-n\lambda} \lambda^{\sum_{i=1}^{n}x_i} \lambda^{\alpha-1} \mathrm{e}^{-\beta \lambda} = \lambda^{(\alpha+ \sum_{i=1}^{n}x_i)-1} \mathrm{e}^{-(n+\beta)\lambda}$$
 so the posterior distribution will be a Gamma$(\alpha+\sum_{i=1}^{n}y_i, n+\beta)$.
 
+```{r lab7.4, echo=TRUE}
+#true lambda
+lambda <- 2
+#sample size
+n <- 15
+#prior alpha
+alpha <- 4
+#prior beta
+beta <- 2
+
+#generate the data
+set.seed(1234)
+y <- rpois(n,lambda)
+
+#posterior alpha
+alpha_star <- sum(y)+alpha
+
+#posterior beta
+beta_star <- n+beta
+
+lik_pois<- function(data, theta){
+  n <- length(data)
+  lambda <- theta
+  dgamma(lambda, shape =sum(data)+1, scale=1/n)
+}
+
+lik_pois_v <- Vectorize(lik_pois, "theta")
+
+curve(lik_pois_v(theta=x, data=y), xlim=c(0,6), lty=2, lwd=2, col="black", ylim=c(0,1.5), ylab="density", xlab=expression(lambda), cex.lab=2)
+curve(dgamma(x, alpha, beta), xlim=c(0,6), col="red", lty=1,lwd=2,  add =T)
+curve(dgamma(x, alpha_star, beta_star), 
+      xlab=expression(lambda), ylab="", col="blue", lwd=2, add=T)
+legend(4, 1, c("Prior", "Likelihood", "Posterior"),
+       c("red", "black", "blue", "blue" ), lty=c(1,2,1),lwd=c(1,1,2), cex=0.8)
+```
+
 ## Ex. 8
 
-Follow the instructions to download and install the `rstan` library. Once you did it successfully, open the file model called "biparametric.stan", and replace the line:   `target+=cauchy_lpdf(sigma|0,2.5);`
+Follow the instructions to download and install the `rstan` library. Once you did it successfully, open the file model called "biparametric.stan", and replace the line:
+
+`target+=cauchy_lpdf(sigma|0,2.5);`
+
 with the following one:  
+
 `target+=uniform_lpdf(sigma|0.1,10)`  
+
 Which prior are you now assuming for your parameter $\sigma$? Reproduce the same plots as above and briefly comment.
 
 ---
@@ -523,12 +566,12 @@ mcmc_areas(posterior_biv,
            prob = 0.8) + plot_title
 ```
 
-Instead of using a half Cauchy distribution we are using a uniform distribution between 0.1 and 10. Both the trace plots converge but the values are slighlty different than before. 
+Instead of using a half Cauchy distribution we are using a uniform distribution between 0.1 and 10. Both the trace plots converge but the values are slighlty different than before: $\theta$ goes from 2.1051 to 2.1089 and sigma goes from $1.5097$ to $1.5681$.
 
 
 ## Ex. 9
 
-Reproduce the first plot above for the soccer goals, but this time by replacing $\textit{prior 1}$ with a $\textit{Gamma(2,4)}$. Then, compute the final Bayes factor matrix $\textit{BF_matrix}$ with this new prior and the other ones unchanged, and comment. Is still $\textit{prior 2}$ favorable over all the others?
+Reproduce the first plot above for the soccer goals, but this time by replacing `prior 1` with a $\textit{Gamma(2,4)}$. Then, compute the final Bayes factor matrix `BF_matrix` with this new prior and the other ones unchanged, and comment. Is still `prior 2` favorable over all the others?
 
 ---
 
@@ -589,7 +632,7 @@ where $m_i(y)$ and $m_j(y)$ are the marginal likelihoods. To simplify computatio
 $$
 log(\pi(\theta|y)) \propto l(\theta;y)+log(\pi(\theta))
 $$
-and I use the $Laplace$ function to compute the log marginal likelihoods.
+and I use the `Laplace` function to compute the log marginal likelihoods.
 
 ```{r lab9.3, echo=TRUE}
 logpoissongamma <- function(theta, datapar){
@@ -640,15 +683,18 @@ round_bf <- round(BF_matrix,3)
 round_bf
 ```
 
-I can see that the posterior obtained with prior1 has a lower mode w.r.t. the others because in more influenced from the new prior which has a lower mean than the likelihood. 
+I can see that the posterior obtained with `Prior1` has a lower mode w.r.t. the others because in more influenced from the new prior which has a lower mean than the likelihood. 
 
-From the Bayes factor matrix I can compare different priors. Of course just the first row and the first column change because I've changed just the first prior. I can see that the second prior is still the preferable one because it's still favored over Prior3 and Prior4 but it's also favored over new prior1 because $BF[2,1]=6.38$ says that Prior2 is 6.38 times more preferable than Prior1. Prior3 is still the less preferable one.
+From the Bayes factor matrix I can compare different priors. Of course just the first row and the first column change because I've changed just the first prior. I can see that the second prior is still the preferable one because it's still favored over `Prior3` and `Prior4` but it's also favored over new `Prior1` because $BF[2,1]=6.38$ says that `Prior2` is 6.38 times more preferable than `Prior1`. `Prior3` is still the less preferable one.
 
 ## Ex. 10
-Let `y=(1,0,0,1,0,0,0,0,0,1,0,0,1,0)` collect the results of tossing `n=14` times an unfair coin, where 1 denotes heads and 0 tails, and `p=\text{Prob}(y_i=1)`.
-Looking at the Stan code for the other models, write a short Stan Beta-Binomial model, where `p` has a `\text{Beta}(a,b)` prior with `a=3, b=3`.
+Let `y=(1,0,0,1,0,0,0,0,0,1,0,0,1,0)` collect the results of tossing $n=14$ times an unfair coin, where 1 denotes heads and 0 tails, and $p=\text{Prob}(y_i=1)$.
+Looking at the Stan code for the other models, write a short Stan Beta-Binomial model, where $p$ has a $\text{Beta}(a,b)$ prior with $a=3$, $b=3$.
+
 - Extract the posterior distribution with the function `extract()`
+
 - produce some plots with the bayesplot package and comment.
+
 - compute analitically the posterior distribution and compare it with the Stan distribution.
 
 ---
@@ -776,36 +822,22 @@ psi_vect <- matrix(data=0,nrow=B,ncol=2)
 
 #let's compute psi and zeta
 
-#adesso per ogni bootstrap devo:
-# 1. calcolare psi e metterlo in psi_vect
-# 2.calcolare una stima di SE(psi*) con jackknife - QUESTO NON LO DEVO PIU FARE
-# 3. calcolare zeta come (psi[i] - psi_obs)/se_jack
 for(i in 1:B) {
-  # estraggo un campione con ripetizione degli indici e chiamerÃ² la 
-  # funzione psi_func su queste righe del dataset
   ind <- sample(1:n, n, replace = TRUE)
-  # 1. in psi ci metto il valore osservato per questo campione
   psi_vect[i,] <- psi_fun(score,ind)
   zeta_vect[i] <- (psi_vect[i,1]-psi_obs[1])/psi_vect[i,2]
 }
 
-#calcolo i quantili delle psi:  
 zeta <- quantile(zeta_vect, prob=c(0.975, 0.025))
 
 #let's compute the confidence interval
 
-# qui se(psi) no è quello del jackknife ma una stima ottenuta calcolando
-# lo standard error della prima colonna di psi_vect
 SE <- sd(psi_vect[,1])
 stud_ci <- psi_obs[1] - SE*zeta
 stud_ci
 
 
 ```
-
-We get the result 
-    97.5%      2.5% 
-0.5128576 0.8609636
 
 Compared with the quantile-method interval, it is wider on the right side and approximately the same on the left side, while compared with the basic-method interval it is shorted on the left side and approximately the same on the right side.
 
@@ -815,23 +847,13 @@ Compute the bootstrap-based confidence interval for the score dataset using the 
 
 ---
 
-We just need to call the two functions boot and boot.ci from the "boot" package. In our case, the boot.ci function will receive the type "stud" as third argument; the implementation of this type requires the estimation of $\text{SE}_{jack}$, that's why we have inserted it in the second column of the psi_func when we've defined it in exercise 1.
+We just need to call the two functions `boot` and `boot.ci` from the `boot` package. In our case, the `boot.ci` function will receive the type `stud` as third argument; the implementation of this type requires the estimation of $\text{SE}_{jack}$, that's why we have inserted it in the second column of the `psi_func` when we've defined it in exercise 1.
 
 ```{r lec2, echo=TRUE}
-# la funzione Ã¨ giÃ  modificata con l'indice che serve
 a <- boot(score,psi_fun,R=10000)
-#si  puÃ² vedere in a$t che nella seconda colonna c'Ã¨ la stima di se
-# per ogni bootstrap, che serve per usare boot.ci con type="stud"
-a$t
-#costruisco l'intervallo
 boot.ci(a,conf=0.95,type="stud")
 ```
 
-In this case we get:
-
-Intervals : 
-Level    Studentized     
-95%   ( 0.5412,  0.8675 ) 
 slightly shorted than the s
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
