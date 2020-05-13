@@ -839,6 +839,14 @@ SE <- sd(psi_vect[,1])
 stud_ci <- psi_obs[1] - SE*zeta
 stud_ci
 
+library(ggplot2)
+library(MASS)
+
+hist.scott(psi_vect[,1], main = "studentized confidence interval")
+abline(v = psi_obs, col = 2)
+mtext(expression(psi[obs]), 1, at=psi_obs, col="red")
+abline(v=stud_ci[1],col=5)
+abline(v=stud_ci[2],col=5)
 
 ```
 
@@ -857,6 +865,6 @@ a <- boot(score,psi_fun,R=10000)
 boot.ci(a,conf=0.95,type="stud")
 ```
 
-slightly shorted than the s
+The Studentized confidence interval is slightly shorted than the one computed in the previous exercise.
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
