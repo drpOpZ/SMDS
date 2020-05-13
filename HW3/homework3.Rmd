@@ -188,7 +188,7 @@ First of all I plot the contour plot of the log likelihood function and then I p
 
 In the case in which $\gamma$ was the parameter of interest I was able, equating to 0 the derivative of the log likelihood wrt $\beta$, to find an analytical formula to compute $\beta$ as function of $\gamma$.
 
-  But now that $\beta$ is the parameter of interest I cannot find a close formula to compute $\gamma$ analytically having $\beta$ from the partial derivative of the log likelihood w.r.t $\gamma$. Hence I've created a function $\textit{deriv()}$ which computes the derivative $\frac{\delta}{\delta\gamma}l(\gamma,\beta,y)$ and another function $gamma.beta_fun$ which given a value for $\beta$ computes numerically a zero of the $\textit{deriv()}$ function which now depends only on $\gamma$.
+  But now that $\beta$ is the parameter of interest I cannot find a close formula to compute $\gamma$ analytically having $\beta$ from the partial derivative of the log likelihood w.r.t $\gamma$. Hence I've created a function `deriv()` which computes the derivative $\frac{\delta}{\delta\gamma}l(\gamma,\beta,y)$ and another function `gamma.beta_fun` which given a value for $\beta$ computes numerically a zero of the `deriv()` function which now depends only on $\gamma$.
   
 ```{r lab3.1, echo=TRUE}
 # data 
@@ -443,7 +443,7 @@ The Beta distribution is not suitable for our problem, the main reason is the fa
 x <- seq(-10, 10, length=100)
 plot(x, dnorm(x, 1, 2), type="l", lwd=1, col=4)
 ```
-The normal distribution is not suitable for our problem, since it makes no sense that there could be begative values for the mean length of our phone calls.
+The normal distribution is not suitable for our problem, since it makes no sense that there could be negative values for the mean length of our phone calls.
 
 3. Gamma(4,2)
 ```{r lab7.3, echo=TRUE}
@@ -559,12 +559,12 @@ mcmc_areas(posterior_biv,
            prob = 0.8) + plot_title
 ```
 
-Instead of using a half Cauchy distribution we are using a uniform distribution between 0.1 and 10. Both the trace plots converge but the values are slighlty different than before: $\theta$ goes from 2.1051 to 2.1089 and sigma goes from $1.5097$ to $1.5681$.
+Instead of using a half Cauchy distribution we are using a uniform distribution between 0.1 and 10. Both the trace plots converge but the values are slighlty different than before: $\theta$ goes from 2.1051 to 2.1089 and sigma goes from 1.5097 to 1.5681.
 
 
 ## Ex. 9
 
-Reproduce the first plot above for the soccer goals, but this time by replacing `prior 1` with a $\textit{Gamma(2,4)}$. Then, compute the final Bayes factor matrix `BF_matrix` with this new prior and the other ones unchanged, and comment. Is still `prior 2` favorable over all the others?
+Reproduce the first plot above for the soccer goals, but this time by replacing prior 1 with a $\textit{Gamma(2,4)}$. Then, compute the final Bayes factor matrix `BF_matrix` with this new prior and the other ones unchanged, and comment. Is still prior 2 favorable over all the others?
 
 ---
 
@@ -601,7 +601,7 @@ prior_gamma_v <- Vectorize(prior_gamma, "theta")
 prior_norm_v <- Vectorize(prior_norm, "theta")
 ```
 
-Now I can plot the likelihood and the priors (now the first prior is $\lambda \sim Gamma(2,4)$) as functions of $\theta=log\lambda$:
+Now I can plot the likelihood and the priors (now the first prior is $\lambda \sim Gamma(2,4)$) as functions of $\theta=\log\lambda$:
 
 ```{r lab9.2, echo=TRUE}
 #likelihood
@@ -676,17 +676,17 @@ round_bf <- round(BF_matrix,3)
 round_bf
 ```
 
-I can see that the posterior obtained with `Prior1` has a lower mode w.r.t. the others because in more influenced from the new prior which has a lower mean than the likelihood. 
+I can see that the posterior obtained with Prior1 has a lower mode w.r.t. the others because in more influenced from the new prior which has a lower mean than the likelihood. 
 
-From the Bayes factor matrix I can compare different priors. Of course just the first row and the first column changed because just $prior 1$ has been modified. 
+From the Bayes factor matrix I can compare different priors. Of course just the first row and the first column changed because just prior 1 has been modified. 
 
 I can see that the second prior is still the preferable one because it's favored over Prior3 and Prior4 as before but it's also favored over new prior1, indeed the bayes factor $BF[2,1]=6.38$ says that Prior2 is 6.38 times more preferable than Prior1. 
 
 Prior3 is still the less preferable one because all bayes factors in the third row are smaller or equal than 1.
 
-The previous $prior 1$ was really similar to $prior 2$ and the last was preferable but $BF[2,1]$ was just 1.281 while with this new $prior 1$, which is really different from $prior 2$ but also from the likelihood, $BF[2,1]$ is 6.380 (almost 5 times the previous value). This means that $prior 2$ is preferable over the new $prior 1$ even strongly than it was over the old $prior 1$.
+The previous prior 1 was really similar to prior 2 and the last was preferable but $BF[2,1]$ was just 1.281 while with this new prior 1, which is really different from prior 2 but also from the likelihood, $BF[2,1]$ is 6.380 (almost 5 times the previous value). This means that prior 2 is preferable over the new prior 1 even strongly than it was over the old prior 1.
 
-Now $prior 1$ is no more preferable over $prior 4$ as it was before because $BF[1,4]<1$. It's still preferable over $prior 3$ but less strongly ($BF[1,3]$ has changed from 35.635 to 7.156). 
+Now prior 1 is no more preferable over prior 4 as it was before because $BF[1,4]<1$. It's still preferable over prior 3 but less strongly ($BF[1,3]$ has changed from 35.635 to 7.156). 
 
 ## Ex. 10
 Let `y=(1,0,0,1,0,0,0,0,0,1,0,0,1,0)` collect the results of tossing $n=14$ times an unfair coin, where 1 denotes heads and 0 tails, and $p=\text{Prob}(y_i=1)$.
@@ -736,6 +736,8 @@ model{
 }
 
 ```
+
+(NOTE: We chose to model $Y$ using a Bernoulli distribution since it is equivalent to using a Binomial distribution with number of total trials fixed to 1.  We also checked that using said binomial formulation in the stan model yielded the same results.)
 
 ```{r lab10, echo=TRUE}
 #beta params
@@ -794,7 +796,9 @@ The bootstrap-based confidence interval with the studentized method has the form
 $$
 (\hat{\psi}- \text{SE}(\hat{\psi})z_{0.975}^*,\hat{\psi}- \text{SE}(\hat{\psi})z_{0.025}^* )
 $$
-where $z_{0.975}^*$ and $z_{0.025}^*$ are the bootstrap quantiles of $z_{1}^*$,..., $z_{B}^*$ for any $b=1,...,B$ (indices of resampling with replacement) and $z_{b}^*=((\hat{\psi}^{*b})-\hat{\psi})/\text{SE}((\hat{\psi}^{*b})$.
+where $z_{0.975}^*$ and $z_{0.025}^*$ are the bootstrap quantiles of $z_{1}^*$,..., $z_{B}^*$ for any $b=1,...,B$ (indices of resampling with replacement) and
+$$z_{b}^*=\frac{\hat{\psi}^{*b}-\hat{\psi}}{\text{SE}(\hat{\psi}^{*b})}$$
+
 Since this computation needs an explicit estimate of $\text{SE}(\hat{\psi}^*)$ for each bootstrap sample, we employ the jackknife within each bootstrap sample: hence, we define our statistic of interest (the eigenratio statistic, let's call it psi_fun), and we implement a for cicle in order to sample our statistic and do the explicit computation of the jackknife estimate of the standard error (SE_jack) within each bootstrap sample. Then we define the quantiles and the confidence interval:  
 
 ```{r lec1, echo=TRUE} 
